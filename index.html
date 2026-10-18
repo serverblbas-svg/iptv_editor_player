@@ -1,52 +1,28 @@
-<!DOCTYPE html>
-<html lang="ckb" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Editor & Player</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    </style>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
-
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-sky-400 flex items-center gap-2">
-                <i class="fa-solid fa-tv"></i> IPTV Editor & Player
-            </h1>
-            <span class="text-xs text-slate-400">وەشانی تایبەت بە M3U</span>
-        </div>
-    </header>
-
-    <!-- Main Content -->
+<!-- Main Content -->
     <main class="container mx-auto p-4 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Control Panel -->
+        <!-- Control Panel & List -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col gap-4">
             
             <!-- Option 1: File Upload -->
             <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
                 <h2 class="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-file-arrow-up text-emerald-400"></i> ١. بارکردنی فایلی M3U (پێشنیازکراو)
+                    <i class="fa-solid fa-file-arrow-up text-emerald-400"></i> ١. بارکردنی فایلی M3U
                 </h2>
                 <input type="file" id="m3uFileInput" accept=".m3u,.m3u8" class="hidden" onchange="handleFileUpload(event)">
                 <button onclick="document.getElementById('m3uFileInput').click()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-upload"></i> هەڵبژاردنی فایل لە کۆمپیوتەر
+                    <i class="fa-solid fa-upload"></i> هەڵبژاردنی فایل
                 </button>
             </div>
 
             <!-- Option 2: Fetch Link -->
             <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-col gap-2">
                 <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                    <i class="fa-solid fa-link text-sky-400"></i> ٢. خوێندنەوە لە ڕێگەی لینکەوە
+                    <i class="fa-solid fa-link text-sky-400"></i> ٢. خوێندنەوە لە لینکەوە
                 </h2>
-                <input type="text" id="m3uUrlInput" value="http://falcon-sa.xyz:80/get.php?username=kbhs00964&password=00964kbhs&type=m3u_plus" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 p-2.5 rounded-lg focus:outline-none focus:border-sky-500" placeholder="لینکی M3U بنووسە...">
+                <input type="text" id="m3uUrlInput" value="http://falcon-sa.xyz:80/get.php?username=kbhs00964&password=00964kbhs&type=m3u_plus" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 p-2.5 rounded-lg focus:outline-none focus:border-sky-500">
                 <button onclick="fetchFromUrl()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-download"></i> هێنانی داتا لە لینکەوە
+                    <i class="fa-solid fa-download"></i> هێنانی داتا
                 </button>
             </div>
 
@@ -67,164 +43,30 @@
             </div>
         </div>
 
-        <!-- Channels List -->
-        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 lg:col-span-2 flex flex-col h-[600px]">
-            <h2 class="text-md font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-list-ul text-sky-400"></i> لیستی کەناڵەکان
-            </h2>
-            <div id="channelList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-                <div class="text-center text-slate-500 py-20 text-sm">
-                    تکایە فایلی M3U باربکە یان لینکەکە دابگرە بۆ نیشاندانی کەناڵەکان.
+        <!-- Player & Channels List Area -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <!-- Video Player Box -->
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-md">
+                <h2 class="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-play text-sky-400"></i> پەخشکەری ڤیدیۆ
+                </h2>
+                <div class="w-full bg-black rounded-lg overflow-hidden aspect-video flex items-center justify-center relative">
+                    <video id="videoPlayer" controls class="w-full h-full object-contain" autoplay></video>
+                    <div id="playerPlaceholder" class="absolute text-slate-500 text-sm">کەناڵێک هەڵبژێرە بۆ پەخشکردن</div>
+                </div>
+            </div>
+
+            <!-- Channels List -->
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col h-[350px]">
+                <h2 class="text-md font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-list-ul text-sky-400"></i> لیستی کەناڵەکان (کلیک لەسەر کەناڵ بکە بۆ لێدان)
+                </h2>
+                <div id="channelList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                    <div class="text-center text-slate-500 py-10 text-sm">
+                        تکایە لینکەکە دابگرە بۆ نیشاندانی کەناڵەکان.
+                    </div>
                 </div>
             </div>
         </div>
 
     </main>
-
-    <!-- Console Log -->
-    <footer class="bg-slate-950 p-3 border-t border-slate-800 text-xs font-mono text-slate-400">
-        <div class="container mx-auto flex justify-between items-center">
-            <span id="logStatus"><i class="fa-solid fa-info-circle"></i> سیستەم ئامادەیە...</span>
-        </div>
-    </footer>
-
-    <script>
-        let allChannels = [];
-        let filteredChannels = [];
-
-        // 1. File Upload Handler
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            logStatus("خەریکی خوێندنەوەی فایلە لە کۆمپیوتەرەکەتەوە...");
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                parseM3UData(e.target.result);
-                logStatus("فایلەکە بە سەرکەوتوویی خوێنرایەوە!");
-            };
-            reader.readAsText(file);
-        }
-
-        // 2. Fetch URL Handler (Using Custom Cloudflare Worker Proxy)
-        async function fetchFromUrl() {
-            const targetUrl = document.getElementById('m3uUrlInput').value.trim();
-            if (!targetUrl) return alert("تکایە لینکێک بنووسە!");
-
-            logStatus("خەریکی پەیوەندیکردنە بە وۆرکەری تایبەتی خۆت...");
-            
-            // بەکارهێنانی وۆرکەری تایبەتی کۆمفلەیر بۆ تێپەڕاندنی HTTP و CORS
-            const proxyUrl = "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(targetUrl);
-
-            try {
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error("سێرفەر وەڵامی نەداوەتەوە");
-                const text = await response.text();
-                parseM3UData(text);
-                logStatus("داتاکە لە ڕێگەی وۆرکەری خۆتەوە بە سەرکەوتوویی هێنرا!");
-            } catch (error) {
-                console.error(error);
-                logStatus("هەڵە ڕووی دا لە هێنانی لینکەکە.");
-            }
-        }
-
-        // 3. Parse M3U Text
-        function parseM3UData(data) {
-            const lines = data.split('\n');
-            allChannels = [];
-            let currentChannel = {};
-            let categories = new Set();
-
-            lines.forEach(line => {
-                line = line.trim();
-                if (line.startsWith('#EXTINF:')) {
-                    currentChannel = {};
-                    
-                    let commaIndex = line.lastIndexOf(',');
-                    if (commaIndex !== -1) {
-                        currentChannel.name = line.substring(commaIndex + 1).trim();
-                    }
-
-                    let groupMatch = line.match(/group-title="([^"]+)"/);
-                    currentChannel.group = groupMatch ? groupMatch[1] : "گشتی";
-                    categories.add(currentChannel.group);
-
-                    let logoMatch = line.match(/tvg-logo="([^"]+)"/);
-                    currentChannel.logo = logoMatch ? logoMatch[1] : "";
-
-                } else if (line && !line.startsWith('#')) {
-                    currentChannel.url = line;
-                    allChannels.push(currentChannel);
-                }
-            });
-
-            // Update Categories Select
-            const catSelect = document.getElementById('categorySelect');
-            catSelect.innerHTML = '<option value="">هەموو گرووپەکان</option>';
-            categories.forEach(cat => {
-                catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-            });
-
-            filterChannels();
-        }
-
-        // 4. Filter and Render Channels
-        function filterChannels() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categorySelect').value;
-
-            filteredChannels = allChannels.filter(ch => {
-                const matchesSearch = ch.name ? ch.name.toLowerCase().includes(search) : true;
-                const matchesCat = category ? ch.group === category : true;
-                return matchesSearch && matchesCat;
-            });
-
-            document.getElementById('channelCount').innerText = filteredChannels.length;
-            renderList();
-        }
-
-        function renderList() {
-            const listEl = document.getElementById('channelList');
-            if (filteredChannels.length === 0) {
-                listEl.innerHTML = `<div class="text-center text-slate-500 py-10">هیچ کەناڵێک نەدۆزرایەوە.</div>`;
-                return;
-            }
-
-            listEl.innerHTML = filteredChannels.map(ch => `
-                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-700/50 flex items-center justify-between hover:border-slate-600 transition">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        ${ch.logo ? `<img src="${ch.logo}" class="w-8 h-8 object-contain rounded bg-slate-800" onerror="this.style.display='none'">` : `<i class="fa-solid fa-tv text-slate-600 text-lg"></i>`}
-                        <div class="truncate">
-                            <div class="text-sm font-medium text-slate-200 truncate">${ch.name || 'کەناڵی بێ ناو'}</div>
-                            <div class="text-xs text-slate-400">${ch.group}</div>
-                        </div>
-                    </div>
-                    <button onclick="navigator.clipboard.writeText('${ch.url}'); alert('لینکی کەناڵەکە کۆپی کرا!')" class="text-slate-400 hover:text-sky-400 p-2 text-xs">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        // 5. Export M3U File
-        function exportM3U() {
-            if (filteredChannels.length === 0) return alert("هیچ کەناڵێک نییە بۆ داگرتن!");
-
-            let m3uContent = "#EXTM3U\n";
-            filteredChannels.forEach(ch => {
-                m3uContent += `#EXTINF:-1 tvg-logo="${ch.logo || ''}" group-title="${ch.group || ''}",${ch.name}\n${ch.url}\n`;
-            });
-
-            const blob = new Blob([m3uContent], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = "filtered_playlist.m3u";
-            a.click();
-        }
-
-        function logStatus(msg) {
-            document.getElementById('logStatus').innerHTML = `<i class="fa-solid fa-info-circle"></i> ${msg}`;
-        }
-    </script>
-</body>
-</html>
