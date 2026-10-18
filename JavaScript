@@ -1,0 +1,21 @@
+async function fetchFromUrl() {
+    // لینکی سێرفەرە HTTPـەکەت (بۆ نموونە فالكون یان هەر لینکێکی تر)
+    const targetUrl = document.getElementById('m3uUrlInput').value.trim();
+    if (!targetUrl) return alert("تکایە لینکێک بنووسە!");
+
+    logStatus("خەریکی پەیوەندیکردنە بە وۆرکەرەکەی خۆت...");
+    
+    // لێرەدا لینکی وۆرکەری خۆت دادەنێیت و لینکی تەرگێت دەبەستیتەوە پێوەی
+    const proxyUrl = "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(targetUrl);
+
+    try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error("سێرفەر وەڵامی نەداوەتەوە");
+        const text = await response.text();
+        parseM3UData(text);
+        logStatus("داتاکە لە ڕێگەی وۆرکەری تایبەتی خۆتەوە بە سەرکەوتوویی هێنرا!");
+    } catch (error) {
+        console.error(error);
+        logStatus("هەڵە ڕوویدا دروستکردنی پەیوەندی.");
+    }
+}
