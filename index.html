@@ -6,7 +6,6 @@
     <title>IPTV Editor & Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- HLS.js Library for video streaming -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -119,7 +118,6 @@
         let filteredChannels = [];
         let hlsInstance = null;
 
-        // 1. File Upload Handler
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -133,29 +131,25 @@
             reader.readAsText(file);
         }
 
-        // 2. Fetch URL Handler (Using Cloudflare Worker Proxy)
         async function fetchFromUrl() {
             const targetUrl = document.getElementById('m3uUrlInput').value.trim();
             if (!targetUrl) return alert("تکایە لینکێک بنووسە!");
 
-            logStatus("خەریکی پەیوەندیکردنە بە وۆرکەری تایبەتی خۆت...");
-            
-            // پرۆکسی کردنی لینک بۆ تێپەڕاندنی CORS و Mixed Content
-            const proxyUrl = "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(targetUrl);
+            logStatus("خەریکی پەیوەندیکردنە...");
+            const proxyUrl = targetUrl.startsWith('http://') ? "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(targetUrl) : targetUrl;
 
             try {
                 const response = await fetch(proxyUrl);
                 if (!response.ok) throw new Error("سێرفەر وەڵامی نەداوەتەوە");
                 const text = await response.text();
                 parseM3UData(text);
-                logStatus("داتاکە لە ڕێگەی وۆرکەری خۆتەوە بە سەرکەوتوویی هێنرا!");
+                logStatus("داتاکە بە سەرکەوتوویی هێنرا!");
             } catch (error) {
                 console.error(error);
                 logStatus("هەڵە ڕووی دا لە هێنانی لینکەکە.");
             }
         }
 
-        // 3. Parse M3U Text
         function parseM3UData(data) {
             const lines = data.split('\n');
             allChannels = [];
@@ -192,7 +186,6 @@
             filterChannels();
         }
 
-        // 4. Filter and Render Channels
         function filterChannels() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const category = document.getElementById('categorySelect').value;
@@ -228,7 +221,6 @@
             `).join('');
         }
 
-        // 5. Play Channel using HLS.js
         function playChannel(url, name) {
             const video = document.getElementById('videoPlayer');
             const placeholder = document.getElementById('playerPlaceholder');
@@ -236,7 +228,6 @@
             placeholder.style.display = 'none';
             logStatus(`خەریکی پەخشکردنی: ${name}`);
 
-            // ڕێکخستنی پرۆکسی بۆ لینکی کەناڵەکە تاوەکو لەسەر HTTPS پەخش ببێت
             const playUrl = url.startsWith('http://') ? "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(url) : url;
 
             if (Hls.isSupported()) {
@@ -259,7 +250,6 @@
             }
         }
 
-        // 6. Export M3U File
         function exportM3U() {
             if (filteredChannels.length === 0) return alert("هیچ کەناڵێک نییە بۆ داگرتن!");
 
