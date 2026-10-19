@@ -6,7 +6,7 @@
     <title>IPTV Editor & Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- HLS.js Library for playing IPTV streams in browser -->
+    <!-- HLS.js Library for video streaming -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold text-sky-400 flex items-center gap-2">
                 <i class="fa-solid fa-tv"></i> IPTV Editor & Player
             </h1>
-            <span class="text-xs text-slate-400">وەشانی تایبەت بە M3U</span>
+            <span class="text-xs text-slate-400">وەشانی ڕاستەوخۆ با EPG & M3U</span>
         </div>
     </header>
 
@@ -30,25 +30,35 @@
         <!-- Control Panel -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col gap-4">
             
-            <!-- Option 1: File Upload -->
-            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
-                <h2 class="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-file-arrow-up text-emerald-400"></i> ١. بارکردنی فایلی M3U
+            <!-- M3U & EPG Direct Links Box -->
+            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-col gap-3">
+                <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-link text-sky-400"></i> لینکە جێگیرکراوەکانی IPTV
                 </h2>
-                <input type="file" id="m3uFileInput" accept=".m3u,.m3u8" class="hidden" onchange="handleFileUpload(event)">
-                <button onclick="document.getElementById('m3uFileInput').click()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-upload"></i> هەڵبژاردنی فایل
+                
+                <div>
+                    <label class="text-xs text-slate-400 mb-1 block">لینکی M3U:</label>
+                    <input type="text" id="m3uUrlInput" value="https://xtream-ie.net/get.php?username=kbhs00964&password=00964kbhs&type=m3u_plus" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-400 mb-1 block">لینکی EPG (ڕێنیشاندەری کەناڵەکان):</label>
+                    <input type="text" id="epgUrlInput" value="https://xtream-ie.net/xmltv.php?username=kbhs00964&password=00964kbhs" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+                </div>
+
+                <button onclick="fetchFromUrl()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2 mt-1">
+                    <i class="fa-solid fa-download"></i> هێنانی داتای کەناڵەکان
                 </button>
             </div>
 
-            <!-- Option 2: Fetch Link -->
-            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-col gap-2">
-                <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                    <i class="fa-solid fa-link text-sky-400"></i> ٢. خوێندنەوە لە لینکەوە
+            <!-- Option 2: File Upload -->
+            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                <h2 class="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-file-arrow-up text-emerald-400"></i> بارکردنی فایلی خۆجێیی
                 </h2>
-                <input type="text" id="m3uUrlInput" value="http://falcon-sa.xyz:80/get.php?username=kbhs00964&password=00964kbhs&type=m3u_plus" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 p-2.5 rounded-lg focus:outline-none focus:border-sky-500" placeholder="لینکی M3U بنووسە...">
-                <button onclick="fetchFromUrl()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-download"></i> هێنانی داتا
+                <input type="file" id="m3uFileInput" accept=".m3u,.m3u8" class="hidden" onchange="handleFileUpload(event)">
+                <button onclick="document.getElementById('m3uFileInput').click()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-upload"></i> هەڵبژاردنی فایل لە کۆمپیوتەر
                 </button>
             </div>
 
@@ -89,7 +99,7 @@
                 </h2>
                 <div id="channelList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                     <div class="text-center text-slate-500 py-10 text-sm">
-                        تکایە لینکەکە دابگرە بۆ نیشاندانی کەناڵەکان.
+                        تکایە دوگمەی «هێنانی داتای کەناڵەکان» دابگرە.
                     </div>
                 </div>
             </div>
@@ -129,6 +139,8 @@
             if (!targetUrl) return alert("تکایە لینکێک بنووسە!");
 
             logStatus("خەریکی پەیوەندیکردنە بە وۆرکەری تایبەتی خۆت...");
+            
+            // پرۆکسی کردنی لینک بۆ تێپەڕاندنی CORS و Mixed Content
             const proxyUrl = "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(targetUrl);
 
             try {
@@ -224,19 +236,22 @@
             placeholder.style.display = 'none';
             logStatus(`خەریکی پەخشکردنی: ${name}`);
 
+            // ڕێکخستنی پرۆکسی بۆ لینکی کەناڵەکە تاوەکو لەسەر HTTPS پەخش ببێت
+            const playUrl = url.startsWith('http://') ? "https://iptv-proxy.serverblbas.workers.dev/?url=" + encodeURIComponent(url) : url;
+
             if (Hls.isSupported()) {
                 if (hlsInstance) {
                     hlsInstance.destroy();
                 }
                 hlsInstance = new Hls();
-                hlsInstance.loadSource(url);
+                hlsInstance.loadSource(playUrl);
                 hlsInstance.attachMedia(video);
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED,function() {
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
                     video.play();
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.addEventListener('loadedmetadata',function() {
+                video.src = playUrl;
+                video.addEventListener('loadedmetadata', function() {
                     video.play();
                 });
             } else {
